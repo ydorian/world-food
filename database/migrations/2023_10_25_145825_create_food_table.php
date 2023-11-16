@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->smallInteger('category_id');
+            $table->text('tags')->nullable();
             $table->timestamps();
         });
     }

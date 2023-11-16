@@ -10,14 +10,14 @@ class Food extends Model {
 
     protected $fillable = ['category_id'];
     public $translatedAttributes = ['name'];
+    protected $table = 'foods';
+    protected $casts = [
+        'tags' => 'array',
+    ];
 
 
     public function category(){
         return $this->belongsTo(Category::class);
-    }
-
-    public function tags(){
-        return $this->belongsToMany(Tag::class);
     }
 
     public function ingredients(){

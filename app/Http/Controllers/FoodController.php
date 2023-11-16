@@ -5,31 +5,35 @@ namespace App\Http\Controllers;
 use App\Models\Food;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 
 
 class FoodController extends Controller {
     public function index(Request $request): JsonResponse
     {
         $category = $request->input('category');
-        $tag = $request->input('tag');
+        $tags = $request->input('tags');
         $language = $request->input('lang');
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
         $with = $request->input('with');
         $diffTime = $request->input('diff_time');
 
+        $request->validate([
+            'lang' => 'required'
+        ]);
+
         $query = Food::query()
+            ->with(['category', 'ingredients'])
             ->when($category, function ($query) use ($category) {
                 return $query->whereHas('category', function ($query) use ($category) {
                     $query->where('name', $category);
                 });
             })
-            ->when($tag, function ($query) use ($tag) {
-                return $query->whereHas('tags', function ($query) use ($tag) {
-                    $query->where('name', $tag);
-                });
-            })
-            ->with(['category', 'tags', 'ingredients']);
+            ->when($tags, function ($query) use ($tags) {
+                $flattenedTags = Arr::flatten(Arr::wrap($tags));
+                return $query->whereIn('tags', $flattenedTags);
+            });
 //            ->withTranslations();
 
         $totalMeals = $query->count();
@@ -40,7 +44,8 @@ class FoodController extends Controller {
             'per_page' => $perPage,
             'total' => $totalMeals,
             'total_pages' => ceil($totalMeals / $perPage),
-            'meals' => $foods->map(function ($food) {
+            'foods' => $foods->map(function ($food) {
+                $food->load(['category', 'tags', 'ingredients']);
                 return [
                     'id' => $food->id,
                     'category' => [

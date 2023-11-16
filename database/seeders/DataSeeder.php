@@ -22,6 +22,7 @@ class DataSeeder extends Seeder
             DB::table('foods')->insert([
                 'title' => $faker->foodName(),
                 'category_id' => $faker->numberBetween(1, 10),
+                'tags' => $faker->regexify('[1-9]{1},[1-9]{1},[1-9]{1}')
             ]);
         }
 
@@ -53,12 +54,12 @@ class DataSeeder extends Seeder
             ]);
         }
 
-        foreach (range(1, 30) as $index) {
-            DB::table('food_tag')->insert([
-                'food_id' => $faker->numberBetween(1, 10),
-                'tag_id' => $faker->numberBetween(1, 10)
-            ]);
-        }
+//        foreach (range(1, 30) as $index) {
+//            DB::table('food_tag')->insert([
+//                'food_id' => $faker->numberBetween(1, 10),
+//                'tag_id' => $faker->numberBetween(1, 10)
+//            ]);
+//        }
     }
 }
 
